@@ -1,13 +1,14 @@
-// bot.js — Proxies Bot v3 (MySQL + server.py auto-copy, no APY)
+// bot.js — Proxies Bot v3 (Heroku Ready + Reply Button)
 const { Telegraf, Markup } = require('telegraf');
 const { BOT_TOKEN, SUPER_ADMIN_ID } = require('./config');
 const auth = require('./services/auth');
 const { render, esc } = require('./utils/render');
 const { pe } = require('./utils/emoji');
 const { getLang, STRINGS } = require('./services/lang');
+const db = require('./services/db');
 
 if (!BOT_TOKEN) {
-  console.error('❌ BOT_TOKEN not set. Copy .env.example to .env and fill in values.');
+  console.error('❌ BOT_TOKEN not set. Set in Heroku Config Vars.');
   process.exit(1);
 }
 
@@ -49,7 +50,6 @@ bot.use(async (ctx, next) => {
 });
 
 // ── Track users in bot_users ──────────────────────────────────────────────
-const db = require('./services/db');
 bot.use(async (ctx, next) => {
   if (ctx.from && ctx.from.id) {
     const gid = String(ctx.from.id);
@@ -132,6 +132,18 @@ bot.start(async (ctx) => {
 
   const kb = await mainMenuKeyboard(ctx);
   await ctx.reply(greeting, { parse_mode: 'HTML', ...kb });
+
+  // ── Heroku reply button ───────────────────────────────────────────────────
+  await ctx.reply(
+    `📢 <b>Need help?</b>\n\nClick the button below to contact admin:`,
+    {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [Markup.button.url('📩 Reply to Admin', `https://t.me/${ctx.botInfo.username}?start=help`)],
+        [Markup.button.callback('ℹ️ Get Support', 'help_support')],
+      ])
+    }
+  );
 });
 
 // ── /link ──────────────────────────────────────────────────────────────────
@@ -141,10 +153,7 @@ bot.command('link', async (ctx) => {
   if (existing) {
     const kb = await mainMenuKeyboard(ctx);
     await ctx.reply(
-      `${pe('check', '✅')} <b>Already Linked!</b>\n\n` +
-      `${pe('person', '👤')} Account: <code>${esc(existing.username)}</code>\n` +
-      `${pe('lock', '🔐')} Role: <b>${esc(existing.role)}</b>\n\n` +
-      `You already have access. Tap /start to open your panel.`,
+      `${pe('check', '✅')} <b>Already Linked!</b>\n\n${pe('person', '👤')} Account: <code>${esc(existing.username)}</code>\n${pe('lock', '🔐')} Role: <b>${esc(existing.role)}</b>\n\nYou already have access. Tap /start to open your panel.`,
       { parse_mode: 'HTML', ...kb }
     );
     return;
@@ -178,6 +187,23 @@ bot.help(async (ctx) => {
     msg += `\n${pe('warning', '⚠️')} Not linked yet — use /link or ask admin to link your ID: <code>${ctx.from.id}</code>`;
   }
   await ctx.reply(msg, { parse_mode: 'HTML' });
+});
+
+// ── Help Support Button ─────────────────────────────────────────────────────
+bot.action('help_support', async (ctx) => {
+  const lang = await getLang(ctx.from.id);
+  const d = STRINGS[lang] || STRINGS['en'];
+  await ctx.answerCbQuery('📩 Support');
+  await ctx.reply(
+    `📩 <b>Support</b>\n\nIf you need help, tap the button below to message the admin:\n\nYou can also use /link to connect your account.`,
+    {
+      parse_mode: 'HTML',
+      ...Markup.inlineKeyboard([
+        [Markup.button.url('📩 Reply to Admin', `https://t.me/${ctx.botInfo.username}?start=help`)],
+        [Markup.button.callback('🔙 Back', 'nav_main_menu')],
+      ])
+    }
+  );
 });
 
 // ── /setup (owner only) ──────────────────────────────────────────────────
