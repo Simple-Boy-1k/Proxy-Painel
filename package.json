@@ -1,0 +1,16 @@
+{
+  "name": "proxies-bot",
+  "version": "2.0.0",
+  "description": "Proxies MySQL Project Telegram Bot — full control from bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "pm2": "pm2 start ecosystem.config.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "mysql2": "^3.9.4",
+    "dotenv": "^16.4.5",
+    "adm-zip": "^0.5.12"
+  }
+}
