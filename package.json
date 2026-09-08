@@ -5,12 +5,18 @@
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
-    "pm2": "pm2 start ecosystem.config.js"
+    "worker": "python server.py",
+    "schema": "node -e \"require('./services/schema').ensureSchema().then(() => console.log('✅ Schema done')).catch(e => console.error(e))\"",
+    "postinstall": "npm run schema || true"
   },
   "dependencies": {
     "telegraf": "^4.16.3",
     "mysql2": "^3.9.4",
     "dotenv": "^16.4.5",
     "adm-zip": "^0.5.12"
+  },
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
   }
 }
