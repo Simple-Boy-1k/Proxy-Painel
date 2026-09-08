@@ -1,7 +1,9 @@
-// config.js — Proxies Bot Configuration
-// Loads from .env — all paths must be absolute.
+// config.js — Proxies Bot Configuration (Heroku Ready)
 require('dotenv').config();
 const path = require('path');
+
+// Heroku detection
+const IS_HEROKU = !!process.env.HEROKU_APP_NAME || !!process.env.DYNO;
 
 module.exports = {
   // ── Telegram ───────────────────────────────────────────────────────────────
@@ -17,20 +19,26 @@ module.exports = {
     password: process.env.DB_PASS || '',
   },
 
-  // ── VPS / Proxy paths ──────────────────────────────────────────────────────
+  // ── VPS / Proxy paths (Heroku Compatible) ──────────────────────────────────
   START_SCRIPT: process.env.START_SCRIPT
     ? path.resolve(process.env.START_SCRIPT)
-    : path.join(__dirname, 'start_proxies.sh'),
+    : IS_HEROKU 
+      ? './start_proxies.sh'
+      : path.join(__dirname, 'start_proxies.sh'),
 
   SERVER_PY: process.env.SERVER_PY
     ? path.resolve(process.env.SERVER_PY)
-    : path.join(__dirname, 'server.py'),
+    : IS_HEROKU
+      ? './server.py'
+      : path.join(__dirname, 'server.py'),
 
   MITMDUMP: process.env.MITMDUMP || '/opt/mitmproxy-venv/bin/mitmdump',
 
   INSTANCES_DIR: process.env.INSTANCES_DIR
     ? path.resolve(process.env.INSTANCES_DIR)
-    : path.join(__dirname, 'data'),
+    : IS_HEROKU
+      ? './data'
+      : path.join(__dirname, 'data'),
 
   // ── Ports ──────────────────────────────────────────────────────────────────
   PROXY_PORTS: (process.env.PROXY_PORTS || '')
@@ -49,5 +57,7 @@ module.exports = {
   // ── File uploads ──────────────────────────────────────────────────────────
   UPLOAD_DIR: process.env.UPLOAD_DIR
     ? path.resolve(process.env.UPLOAD_DIR)
-    : path.join(__dirname, 'data'),
+    : IS_HEROKU
+      ? './data'
+      : path.join(__dirname, 'data'),
 };
