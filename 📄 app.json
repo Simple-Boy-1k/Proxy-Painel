@@ -1,0 +1,61 @@
+{
+  "name": "Proxies Bot v3",
+  "description": "Telegram bot for managing proxy servers with IP-based authentication",
+  "repository": "https://github.com/Simple-Boy-1k/Proxy-Painel",
+  "logo": "https://telegra.ph/file/8a6f5f8a9f4e3c2a1b0d9.png",
+  "keywords": ["telegram", "bot", "proxy", "mitmproxy"],
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Telegram bot token from @BotFather",
+      "required": true
+    },
+    "SUPER_ADMIN_ID": {
+      "description": "Your Telegram numeric ID",
+      "required": true
+    },
+    "DB_HOST": {
+      "description": "MySQL host (ClearDB)",
+      "required": true
+    },
+    "DB_NAME": {
+      "description": "MySQL database name",
+      "required": true
+    },
+    "DB_USER": {
+      "description": "MySQL username",
+      "required": true
+    },
+    "DB_PASS": {
+      "description": "MySQL password",
+      "required": true
+    },
+    "SERVER_PY": {
+      "description": "Path to server.py",
+      "value": "./server.py"
+    },
+    "INSTANCES_DIR": {
+      "description": "Instances directory",
+      "value": "./data"
+    },
+    "IP_DETECT_URL": {
+      "description": "IP detection URL",
+      "value": "https://xtrikeip.netlify.app"
+    }
+  },
+  "addons": [
+    {
+      "plan": "cleardb:ignite"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "npm run schema"
+  }
+}
